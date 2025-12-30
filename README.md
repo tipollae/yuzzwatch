@@ -1,1 +1,1 @@
-# yuzzwatch video watching with friends project
+# yuzzwatch multiplayer video player project
