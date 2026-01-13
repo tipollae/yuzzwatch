@@ -63,7 +63,7 @@ if (!server.listening){
 else {console.log("Server has already been initiated")}
 
 //mongodb set up
-const uri = "mongodb+srv://user1:Cav1te09@cluster0.pvnvqt1.mongodb.net/?appName=Cluster0"
+const uri = "mongodb+srv://tipollae:Dodona2a@cluster0.pvnvqt1.mongodb.net/?appName=Cluster0"
 const client = new MongoClient(uri);
 
 //simple self calling async function to connect to mongo data base
