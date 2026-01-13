@@ -44,6 +44,7 @@
             <div class="navBarContent">
 
                 <div class = "navButton" onclick = "logUserOut()">Log out <span>➜]</span></div>
+                <div class = "navButton" onclick = "openDeletePrompt()" style = "color: red;">Delete account</div>
 
             </div>
 
@@ -64,6 +65,7 @@
             <div class="navBarContent">
 
                 <div class = "navButton" onclick = "logUserOut()">Log out <span>➜]</span></div>
+                <div class = "navButton" onclick = "openDeletePrompt()" style = "color: red;">Delete account</div>
 
             </div>
 
@@ -74,6 +76,25 @@
             <img class = "menuIcon" src = "images/other images/menu icon.png">
             <img class = "closeIcon" src = "images/other images/close icon.png">
 
+        </div>
+
+    </div>
+
+    <div id = "maskWholeScreen"></div>
+
+    <div id = "confirmDeleteWrapper">
+
+        <div class = "confirmPrompt">
+            <center>
+
+                <h1>Are you sure you want to delete your account?</h1>
+                
+                <div class = "confirmButtons">
+                    <h1 id = "yesButton" onclick = "deleteAccount()" class = "button1">Yes</h1>
+                    <h1 class = "button1" onclick = "closeDeletePrompt()">No</h1>
+                </div>
+
+            </center>
         </div>
 
     </div>

@@ -132,7 +132,6 @@ module.exports = {
 
     },
 
-
     comparePasword: async function(clientReference, givenUsername, givenPassword){
 
         //extracts mongo data base, set to true for data to be returned
@@ -151,6 +150,26 @@ module.exports = {
         else return [false, "Problem: user does not exist"]
 
     },
+
+    deleteAccount: async function(clientReference, givenUsername){
+
+        const extractedData = await module.exports.recieveMongoDataBase(clientReference, true);
+        const existingUser = extractedData.find(user => user.username == givenUsername);  
+        
+        if (existingUser){
+
+            const database = clientReference.db("admin_database");
+            const collection = database.collection("admin_users");
+
+            await collection.deleteOne({username: givenUsername});
+
+            return true;
+
+        }
+
+        return false;
+
+    }
 
 }
 

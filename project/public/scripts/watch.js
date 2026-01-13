@@ -150,6 +150,14 @@ socket.on("goodbye-user", (leftUser)=>{
 
 })
 
+socket.on("account-deletion-success", function(){
+
+    alert("Your account was successfully deleted");
+    socket.disconnect();
+    window.location = "index.html";
+
+})
+
 function joinRoom(){
 
     const roomCode = String(window.location.href.split("#")[1]);

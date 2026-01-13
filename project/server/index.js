@@ -102,11 +102,7 @@ const characters = [
 //TOKENS-----
 var tokens = [];
 var verificationCodes = []
-var rooms = [{
-    "room code": "ABCD",
-    "active-users": [],
-    host: "tipollae",
-}];
+var rooms = [];
 /*room object :
 
 {
@@ -162,6 +158,29 @@ io.on("connection", async (socket)=>{
 
     })
 
+    socket.on("deleteAccount", async (username, token)=>{
+
+        let authorizedDeletion = tokens.find(object => object.token === socket.data.token && object.username === username);
+
+        if (!authorizedDeletion) return;
+        
+        let deletedAccount = await asyncFunctionCallBack(dataHandler.deleteAccount, client, username)
+
+        if (deletedAccount) {
+
+            for (let i = 0; i < authorizedDeletion["active-sockets"].length; i++){
+
+                io.to(authorizedDeletion["active-sockets"][i]).disconnectSockets();
+
+            }
+
+            tokens.splice(tokens.indexOf(authorizedDeletion),1);
+        }
+        
+        else socket.emit("failed-to-delete-account")
+
+    })
+
     //searching for a room
     socket.on("search-room", (givenRoomCode)=>{
 
@@ -206,6 +225,7 @@ io.on("connection", async (socket)=>{
         const foundRoom = rooms.find(room => room["room code"] === String(givenRoomCode));
 
         let existingUser;
+        
         if (foundRoom){
 
             existingUser = foundRoom["active-users"].findIndex(user =>
@@ -213,6 +233,7 @@ io.on("connection", async (socket)=>{
             user.token === socket.data.token)
 
         }
+
         if (existingUser == -1){
 
             foundRoom["active-users"].push({"username": socket.data.username, "token": socket.data.token, 
@@ -368,8 +389,7 @@ io.on("connection", async (socket)=>{
 
                 const foundUser = rooms[i]["active-users"].findIndex(user => user.socketID === socket.id);
                 const foundTokenUser = tokens.find(user => user.token === socket.data.token);
-                console.log(foundTokenUser)
-                if (foundUser >= 0){
+                if (foundUser >= 0 && foundTokenUser !== undefined){
 
                     let activeUsersReference = rooms[i]["active-users"];
                     activeUsersReference.splice(foundUser, 1)
@@ -522,7 +542,6 @@ io.on("connection", async (socket)=>{
             else{ socket.emit("validUserData") }
 
             console.log(userDataStatus)
-            console.log("verification codes:", verificationCodes)
         });
 
     });
@@ -586,7 +605,7 @@ async function verificationCodeLoop(){
 
     }
 
-    console.log(verificationCodes);
+    //console.log(verificationCodes);
     await wait(25000);
     verificationCodeLoop();
     
