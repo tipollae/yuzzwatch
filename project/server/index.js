@@ -63,7 +63,8 @@ if (!server.listening){
 else {console.log("Server has already been initiated")}
 
 //mongodb set up
-const uri = "mongodb+srv://tipollae:Dodona2a@cluster0.pvnvqt1.mongodb.net/?appName=Cluster0"
+require('dotenv').config();
+const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri);
 
 //simple self calling async function to connect to mongo data base
