@@ -91,7 +91,7 @@ module.exports = {
             text: `Here is your verification code: ${verificationCode}. This code will expire around the next 10 minutes.
             Please don't share this with anyone else.`,
             html: `<p>Your verification code: <strong>${verificationCode}</strong>
-            <p>This code will expire around the next 10 minutes. <br> <strong>Do not share this code with anyone else.</strong>`
+            <p>This code will expire around the next 1 hour. <br> <strong>Do not share this code with anyone else.</strong>`
 
         };
 

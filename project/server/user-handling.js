@@ -22,8 +22,6 @@ module.exports = {
                 "active-rooms": []})
 
                 socket.data.token = generatedToken;
-
-                socket.data.token = generatedToken;
                 socket.data.username = givenUsername;
                 console.log(`This is the given token: ${socket.data.token}`)
 

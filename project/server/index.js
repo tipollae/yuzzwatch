@@ -509,7 +509,7 @@ io.on("connection", async (socket)=>{
 
                 }
 
-            }, 10000)
+            }, (1.5*60*60000))//1.5 hours
 
         }
 
@@ -599,14 +599,14 @@ async function verificationCodeLoop(){
 
     if (verificationCodes.length > 0){
 
-        const expiryTime = 10 * 60 * 1000;
-        const currentTime = Date.now()
+        const hours = 1;
+        const expiryTime = hours * 3600000; // converting hours to miliseconds
+        const currentTime = Date.now();
         verificationCodes = verificationCodes.filter(code => 
         (currentTime - code["time created"]) < expiryTime);
 
     }
 
-    //console.log(verificationCodes);
     await wait(25000);
     verificationCodeLoop();
     
