@@ -20,9 +20,7 @@ socket.on('disconnect', function() {
 
 
 socket.on("established-connection", ()=>{
-
-    socket.emit("connection-protocal", localToken)
-
+    socket.emit("connection-protocal", localToken);
 })
 
 socket.on("log-user-in", (givenToken, givenUsername)=>{
@@ -75,7 +73,7 @@ socket.on("request-host-data", (senderSocketID)=>{
     var videoUrl = player.getVideoUrl();
     var videoId = new URL(videoUrl).searchParams.get('v');
 
-    let currentTime = Date.now()
+    let currentTime = Date.now();
 
     socket.emit("update-specific-user", player.getPlayerState(), 
     player.getCurrentTime(), String(videoId), parseFloat(player.getPlaybackRate()), senderSocketID, localRoomData["room code"], currentTime)
@@ -158,6 +156,28 @@ socket.on("account-deletion-success", function(){
 
 })
 
+socket.on("server-message", function(sentHTML){
+
+    const chatReference = document.getElementById("chat");
+    let verticalScroll = chatReference.scrollTop;
+    const maxScroll = chatReference.scrollHeight - chatReference.clientHeight;
+
+    chatReference.innerHTML += sentHTML;
+
+    if (verticalScroll >= maxScroll - 100){
+
+        chatReference.scrollTop = chatReference.scrollHeight;
+
+    }
+
+});
+
+socket.on("next-in-playlist", function(videoID){
+
+    player.loadVideoById(videoID);
+
+})
+
 function joinRoom(){
 
     const roomCode = String(window.location.href.split("#")[1]);
@@ -208,6 +228,7 @@ function onYouTubeIframeAPIReady() {
     videoId: '7yRV9YyJLhs', // A default video to load
     playerVars: {
         'autoplay': 1, // This enables autoplay
+        'mute': 1 //mute, essentail to enable autoplay i guess
     },
     events: {
       'onReady': onPlayerReady,
@@ -220,7 +241,8 @@ function onYouTubeIframeAPIReady() {
 function onPlayerReady(event) {
     const playerContainer = document.getElementById("player");
     if (!playerContainer || !player){onPlayerReady(); return}
-    player.playVideo();
+    //event.target.mute();
+    //player.playVideo();
     onPlayerStateChange();
 
 }
@@ -238,6 +260,9 @@ function onPlayerStateChange(event) {
 
     socket.emit("update-others-playerState", player.getPlayerState(), 
     player.getCurrentTime(), String(videoId), parseFloat(player.getPlaybackRate()), currentTime, localRoomData["room code"]);
+
+    console.log(`playerState: ${player.getPlayerState()}`)
+    console.log(`playerCurrentTime: ${player.getCurrentTime()}`)
 
 }
 
@@ -268,8 +293,7 @@ function submitVdeoID(){
         const extractedLinkData = String(submittedLink).split("youtu.be/");
         const videoID = extractedLinkData[1].split("?")[0];
 
-        player.cueVideoById(videoID);
-        player.playVideo();
+        player.loadVideoById(videoID);
 
         document.getElementById("inputVIDEOID").value = ""
     
@@ -281,8 +305,7 @@ function submitVdeoID(){
         const extractedLinkData = String(submittedLink).split("v=");
         const videoID = extractedLinkData[1].split("&")[0];
 
-        player.cueVideoById(videoID);
-        player.playVideo();
+        player.loadVideoById(videoID);
 
         document.getElementById("inputVIDEOID").value = ""
 
@@ -308,8 +331,7 @@ function updateClientPlayer(hostState, hostTimeStamp, hostVideoID, hostPlayBackS
             player.getVideoData().video_id !== hostVideoID && hostVideoID !== null ||
             player.getVideoData().video_id !== hostVideoID && hostVideoID !== "null"){
 
-            player.cueVideoById(hostVideoID);
-            player.playVideo();
+            player.loadVideoById(hostVideoID);
 
         }
 

@@ -10,6 +10,9 @@ const bcrypt = require("bcrypt");
 //importing node mailer
 let nodemailer = require('nodemailer');
 
+//http request library for getting the youtube video titles
+const axios = require('axios');
+
 //importing express and creating a new express app instance
 const express = require("express");
 const path = require('path');
@@ -108,8 +111,11 @@ var rooms = [];
 
 {
     "room code": "ABCD",
-    "active-users": [ ["username", "tokenID"] ],
+    "active-users": [ {username: "username", tocken: tokenID, socketID: socketID} ],
     host: "some username",
+    hostTokenID: some token id
+    hostSocketID: "some socket id"
+    playlist: [];
 }
 
 */
@@ -240,6 +246,10 @@ io.on("connection", async (socket)=>{
             foundRoom["active-users"].push({"username": socket.data.username, "token": socket.data.token, 
                 "socketID": socket.id})
 
+            if (!(foundRoom.hostSocketID) && (foundRoom.hostTokenID === socket.data.token)){ 
+                foundRoom.hostSocketID = socket.id;
+            }
+
             socket.data.isInRoom = true;
 
             const foundRoomUsersList = [];
@@ -293,6 +303,11 @@ io.on("connection", async (socket)=>{
                 "room code": roomCode,
                 "active-users": [],
                 host: socket.data.username,
+                hostTokenID: socket.data.token,
+                hostSocketID: null,
+                playlist: [],
+                playlistActive: false,
+                shouldMoveToNextVid: false,
             })
             const foundUser = tokens.find(object => object.token === socket.data.token);
             if (foundUser){
@@ -328,16 +343,44 @@ io.on("connection", async (socket)=>{
     })
 
     //live room info handling
-    socket.on("update-others-playerState", (hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed, givenTime, givenRoomCode)=>{
+    socket.on("update-others-playerState", async (hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed, givenTime, givenRoomCode)=>{
 
         const foundRoom = rooms.find(room => room["room code"] === givenRoomCode);
 
         if (foundRoom){
 
-            if (socket.data.username == foundRoom.host){
+            if (socket.id == foundRoom.hostSocketID){
 
                 let serverTime = Date.now();
-                let timeToServer = (serverTime - givenTime)
+                let timeToServer = (serverTime - givenTime);
+
+                if (foundRoom.playlist.length === 0){
+
+                    foundRoom.playlistActive = false;
+
+                }
+
+                if (hostState === 0){
+
+                    let data = {
+                        socketID: socket.id,
+                        givenRoomCode: givenRoomCode
+                    };
+
+                    foundRoom.shouldMoveToNextVid = true;
+
+                    await wait(2500);
+                    if (foundRoom.shouldMoveToNextVid) nextVideo(data);
+
+                }
+
+                else{
+
+                    if (foundRoom.shouldMoveToNextVid){
+                        foundRoom.shouldMoveToNextVid = false;
+                    }
+
+                }
 
                 socket.to(givenRoomCode).emit("update-playerState", hostState, hostTimeStamp, hostVideoID, hostPlayBackSpeed, timeToServer, serverTime);
 
@@ -374,6 +417,16 @@ io.on("connection", async (socket)=>{
     socket.on("send-message", (sentMessage, givenRoomCode)=>{
 
         io.to(givenRoomCode).emit("emit-message-to-all", sentMessage, socket.data.username);
+        if (sentMessage[0] === "/"){
+
+            let data = {
+                message: sentMessage,
+                socketID: socket.id,
+                givenRoomCode: givenRoomCode
+            };
+
+            checkCommands(data)
+        }
 
     })
 
@@ -635,6 +688,217 @@ async function asyncFunctionCallBack(givenFunction, ...params){
 function wait (waitTime){
 
     return new Promise(resolve => setTimeout(resolve, waitTime))
+
+}
+
+//commands-----
+
+function helpCommand(givenData){
+
+    let html = `
+    <h1 class = "serverNote">
+    <p class = "message" style = "color: white">Host commands:</p>
+    <p class = "message" style = "color: white">• /add link1 link2 link3...</p>
+    <p class = "message" style = "color: white">• /next</p>
+    <p class = "message" style = "color: white">• /clear</p>
+    <p class = "message" style = "color: white">• /kick username</p>
+    <br>
+    <p class = "message" style = "color: white">General commands:</p>
+    <p class = "message" style = "color: white">• /getPlaylistLength</p>
+    <p class = "message" style = "color: white">• /help</p>
+    </h1>
+    `;
+    io.to(givenData.socketID).emit("server-message", html)
+
+}
+
+function addVideo(givenData){
+
+    const roomCode = givenData.givenRoomCode;
+    const foundRoom = rooms.find(room => room["room code"] === roomCode);
+
+    if (foundRoom.hostSocketID !== givenData.socketID) return;
+
+    var linksArr = givenData.message.split(" ");
+    linksArr.splice(0,1);
+    
+    var extractedLinksID = extractVideoLinks(linksArr);
+
+    let amountAdded = 0;
+
+    for (let i = 0; i < extractedLinksID.length; i++){
+
+        foundRoom.playlist.push(extractedLinksID[i]);
+        amountAdded ++;
+
+    }
+
+    let html = `
+    <h1 class = "serverNote">
+    <p class = "message" style = "color: white">Added ${amountAdded} videos to playlist</p>
+    `;
+    io.to(givenData.givenRoomCode).emit("server-message", html)
+
+}
+
+function extractVideoLinks(linksArr) {
+    const extractedLinks = [];
+
+    for (let i = 0; i < linksArr.length; i++) {
+        const link = linksArr[i];
+
+        try {
+
+            let videoID = null;
+
+            if (link.includes("youtu.be")) {
+                videoID = link.split("youtu.be/")[1].split("?")[0];
+            } 
+            
+            else if (link.includes("youtube.com/watch")) {
+                videoID = new URL(link).searchParams.get("v");
+            }
+
+            if (videoID) {
+                extractedLinks.push(videoID);
+            }
+
+        } catch {
+            continue;
+        }
+    }
+
+    return extractedLinks;
+}
+
+function nextVideo(givenData){
+
+    const roomCode = givenData.givenRoomCode;
+    const foundRoom = rooms.find(room => room["room code"] === roomCode);
+
+    if (foundRoom.playlistActive) foundRoom.playlist.shift();
+    else foundRoom.playlistActive = true;
+
+    if (foundRoom.hostSocketID !== givenData.socketID || foundRoom.playlist.length === 0){ 
+
+        let html = `
+        <h1 class = "serverNote">
+        <p class = "message" style = "color: white">Playlist is empty</p>
+        `;
+        io.to(givenData.socketID).emit("server-message", html);
+
+        foundRoom.playlistActive = false;
+
+        return;
+    }
+
+    io.to(givenData.socketID).emit("next-in-playlist", foundRoom.playlist[0])
+    let html = `
+    <h1 class = "serverNote">
+    <p class = "message" style = "color: white">Moved to next video in playlist</p>
+    `;
+    io.to(givenData.givenRoomCode).emit("server-message", html)
+
+}
+
+function clearPlaylist(givenData){
+
+    const roomCode = givenData.givenRoomCode;
+    const foundRoom = rooms.find(room => room["room code"] === roomCode);
+
+    if (foundRoom.hostSocketID !== givenData.socketID || foundRoom.playlist.length === 0) return;
+
+    foundRoom.playlist.length = 0;
+    foundRoom.playlistActive = false;
+    foundRoom.shouldMoveToNextVid = false;
+
+    let html = `
+    <h1 class = "serverNote">
+    <p class = "message" style = "color: white">Cleared playlist</p>
+    `;
+    io.to(givenData.givenRoomCode).emit("server-message", html)
+
+}
+
+function getPlaylistLength(givenData){
+
+    const roomCode = givenData.givenRoomCode;
+    const foundRoom = rooms.find(room => room["room code"] === roomCode);
+
+    let html = `
+    <h1 class = "serverNote">
+    <p class = "message" style = "color: white">There are currently ${foundRoom.playlist.length} videos in the playlist</p>
+    `;
+    io.to(givenData.socketID).emit("server-message", html)
+
+}
+
+function kickCommand(givenData){
+
+    const roomCode = givenData.givenRoomCode;
+    const foundRoom = rooms.find(room => room["room code"] === roomCode);
+
+    if (foundRoom.hostSocketID !== givenData.socketID) return;
+
+    const messageArr = givenData.message.split(" ");
+    const userToKick = messageArr[1];
+    const foundUser = foundRoom["active-users"].find(user => user.username === userToKick);
+
+    let html;
+
+    if (foundUser){
+
+        html = `
+        <h1 class = "serverNote">
+        <p class = "message" style = "color: white">Kicked ${foundUser.username} from room :o</p>
+        </h1>
+        `;
+
+        io.to(foundUser.socketID).disconnectSockets();
+
+    }
+
+    else{
+
+        html = `
+        <h1 class = "serverNote">
+        <p class = "message" style = "color: white">Couldn't find user in room.</p>
+        </h1>
+        `;
+
+    }
+
+    io.to(givenData.givenRoomCode).emit("server-message", html)
+
+}
+
+function checkCommands(data){
+
+    let formedCommand = "";
+    let sentMessageArr = data.message.split("");
+    sentMessageArr.splice(0,1);
+    
+    const commandsMap = {
+
+        "help": helpCommand,
+        "kick": kickCommand,
+        "add": addVideo,
+        "next": nextVideo,
+        "clear": clearPlaylist,
+        "getPlaylistLength": getPlaylistLength,
+
+    }
+
+    console.log(sentMessageArr)
+
+    for (let i = 0; i < sentMessageArr.length; i++){
+
+        if (sentMessageArr[i] === " ") break;
+        formedCommand += sentMessageArr[i];
+
+    }
+
+    if (commandsMap[formedCommand]) commandsMap[formedCommand](data);
 
 }
 

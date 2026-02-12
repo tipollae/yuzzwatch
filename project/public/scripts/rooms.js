@@ -29,7 +29,7 @@ socket.on("log-user-in", (givenToken, givenUsername)=>{
 
 socket.on("expired-token-protocal", ()=>{
 
-    alert("Invalid token")
+    alert("Invalid token");
     localStorage.clear();
     window.location = "index.html";
 
