@@ -227,8 +227,8 @@ function onYouTubeIframeAPIReady() {
     width: '100%',
     videoId: '7yRV9YyJLhs', // A default video to load
     playerVars: {
-        'autoplay': 1, // This enables autoplay
-        'mute': 1 //mute, essentail to enable autoplay i guess
+        'autoplay': 0, // This enables autoplay
+        'mute': 0 //mute, essentail to enable autoplay i guess
     },
     events: {
       'onReady': onPlayerReady,
