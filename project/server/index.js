@@ -777,6 +777,8 @@ function nextVideo(givenData){
     const roomCode = givenData.givenRoomCode;
     const foundRoom = rooms.find(room => room["room code"] === roomCode);
 
+    if (foundRoom.hostSocketID !== givenData.socketID || foundRoom.playlist.length === 0) return;
+
     if (foundRoom.playlistActive) foundRoom.playlist.shift();
     else foundRoom.playlistActive = true;
 
