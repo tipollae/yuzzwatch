@@ -736,6 +736,7 @@ function addVideo(givenData){
     let html = `
     <h1 class = "serverNote">
     <p class = "message" style = "color: white">Added ${amountAdded} videos to playlist</p>
+    </h1>
     `;
     io.to(givenData.givenRoomCode).emit("server-message", html)
 
@@ -784,6 +785,7 @@ function nextVideo(givenData){
         let html = `
         <h1 class = "serverNote">
         <p class = "message" style = "color: white">Playlist is empty</p>
+        </h1>
         `;
         io.to(givenData.socketID).emit("server-message", html);
 
@@ -796,6 +798,7 @@ function nextVideo(givenData){
     let html = `
     <h1 class = "serverNote">
     <p class = "message" style = "color: white">Moved to next video in playlist</p>
+    </h1>
     `;
     io.to(givenData.givenRoomCode).emit("server-message", html)
 
@@ -815,6 +818,7 @@ function clearPlaylist(givenData){
     let html = `
     <h1 class = "serverNote">
     <p class = "message" style = "color: white">Cleared playlist</p>
+    </h1>
     `;
     io.to(givenData.givenRoomCode).emit("server-message", html)
 
@@ -828,6 +832,7 @@ function getPlaylistLength(givenData){
     let html = `
     <h1 class = "serverNote">
     <p class = "message" style = "color: white">There are currently ${foundRoom.playlist.length} videos in the playlist</p>
+    </h1>
     `;
     io.to(givenData.socketID).emit("server-message", html)
 
