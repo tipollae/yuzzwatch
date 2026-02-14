@@ -65,8 +65,10 @@ if (!server.listening){
 
 else {console.log("Server has already been initiated")}
 
-//mongodb set up
+//security
 require('dotenv').config();
+
+//mongodb set up
 const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri);
 
@@ -105,7 +107,8 @@ const characters = [
 
 //TOKENS-----
 var tokens = [];
-var verificationCodes = []
+var verificationCodes = [];
+var recoveryCodes = {};
 var rooms = [];
 /*room object :
 
@@ -568,6 +571,57 @@ io.on("connection", async (socket)=>{
 
     });
 
+    socket.on("recoverAccount", (givenEmail)=>{
+
+        console.log("test1")
+
+        asyncFunctionCallBack(dataHandler.findAccountEmail, client, givenEmail).then((existingEmail)=>{
+
+            if (existingEmail){
+                console.log("existing email")
+                socket.emit("notify", true, "Account found")
+                asyncFunctionCallBack(dataHandler.sendRecoveryVerification, client, 
+                recoveryCodes, existingEmail).then((returnedData)=>{
+
+                   recoveryCodes[returnedData.code] = returnedData.obj;
+                   console.log(recoveryCodes)
+                   console.log(recoveryCodes)
+
+                })
+            }
+
+            else {socket.emit("notify", false, "No account is attatched to that email"); console.log("false email")}
+
+        })
+
+    })
+
+    socket.on("changePassword", (givenPassword, givenRecoveryCode)=>{
+
+        console.log("request change pass")
+
+        if (recoveryCodes[givenRecoveryCode]){
+
+            asyncFunctionCallBack(dataHandler.changePassword, client, recoveryCodes[givenRecoveryCode].username, 
+            givenPassword).then((returnedData)=>{
+
+                socket.emit("notify2", returnedData[0], false, returnedData[1]);
+                if (returnedData[0]){
+                    delete recoveryCodes[givenRecoveryCode];
+                }
+
+            })
+
+        }
+
+        else{
+
+            socket.emit("notify2", false, true, "Invalid verification code.");
+
+        }
+
+    })
+
     socket.on("checkUserData", (createdUsername, createdPassword, givenEmail)=>{
 
         asyncFunctionCallBack(dataHandler.checkNewAccountDetails, client, createdUsername, createdPassword,
@@ -640,7 +694,7 @@ async function roomCheckLoop(){
 
     console.log(rooms);
 
-    await wait(25000);
+    await wait(15000);
 
     roomCheckLoop();
     
@@ -666,6 +720,25 @@ async function verificationCodeLoop(){
 }
 
 verificationCodeLoop()
+
+async function recoveryCodeLoop(){
+
+    const hours = 1;
+    const expiryTime = hours * 3600000; // converting hours to miliseconds
+    const currentTime = Date.now();
+
+    Object.keys(recoveryCodes).forEach(code => {
+        if ((currentTime - recoveryCodes[code]["time created"]) >= expiryTime) {
+            delete recoveryCodes[code];
+        }
+    });
+
+    await wait(25000);
+    recoveryCodeLoop();
+    
+}
+
+recoveryCodeLoop();
 
 //re-usable functions
 async function asyncFunctionCallBack(givenFunction, ...params){

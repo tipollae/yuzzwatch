@@ -25,17 +25,17 @@ socket.on("log-user-in", (givenToken, givenUsername)=>{
 
 socket.on("give-login-status", (loginMessage)=>{
 
-
-
     if (!loginMessage[0]){
 
         document.getElementById("error").style.color = "red"
+        document.getElementById("recoverAccount").style.display = "block";
 
     }
 
     else{
 
-        document.getElementById("error").style.color = "#20bf55"
+        document.getElementById("error").style.color = "#20bf55";
+        document.getElementById("recoverAccount").style.display = "none";
 
     }
 

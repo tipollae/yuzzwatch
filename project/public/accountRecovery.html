@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="icon" href="images/yuzz watch logos/yuzz watch favicon.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <title>yuzzwatch</title>
+</head>
+<body>
+
+    <center>
+        <img id = "logo" src = "images/yuzz watch logos/yuzz watch logo.png">
+    </center>
+
+    <center>
+        <form id = "form">
+            <label for="email">Enter your email:</label><br>
+            <input class = "input" type="text" id="email" name="email" placeholder = "e.g. epstien@gmail.com" autocomplete="off"><br>
+            <span class = "errorDisplay" id = "emailError"></span><br><br>
+            <input class = "button1" id = "submitButton" type="submit" value="Recover account" style="width: max-content;">
+        </form> 
+    </center>
+
+    <center>
+    <form id = "form2">
+        <label for="password1">Create new password:</label><br>
+        <input class = "input" type="password" id="password1" name="password1" placeholder = "" autocomplete="off"><br>
+        <span class = "errorDisplay" id = "password1Error"></span><br><br>
+        <label for="password2">Confirm new password:</label><br>
+        <input class = "input" type="password" id="password2" name="password2" placeholder = "" autocomplete="off"><br>
+        <span class = "errorDisplay" id = "password2Error"></span><br><br>
+        <label for="password1">Enter recovery code:</label><br>
+        <input class = "input" type="text" id="recoveryCode" name="recoveryCode" placeholder = "" autocomplete="off"><br>
+        <span class = "errorDisplay" id = "recoveryCodeError"></span><br><br>
+        <input class = "button1" id = "submitButton2" type="submit" value="Change password" style="width: max-content;"><br><br>
+        <button class = "button1" id = "resendCode" type="button" onclick = "sendFormData()" style="width: max-content;">Resend code</button>
+    </form> 
+    </center>
+
+    <center>
+
+        <div id = "recoveryVerificationContainer">
+
+            <center>
+                <h2>Account successfully recovered!</h2>
+            </center>
+
+        </div>
+
+    </center>
+
+    <!----- server socket io module ----->
+    <script type = "text/javascript" src = "/socket.io/socket.io.js"></script>
+
+    <script type = "text/javascript" src = "scripts/accountRecovery.js"></script>
+
+</body>
+</html>

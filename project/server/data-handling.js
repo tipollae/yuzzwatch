@@ -1,6 +1,9 @@
 
 const bcrypt = require("bcrypt");
 
+//security
+require('dotenv').config();
+
 let nodemailer = require('nodemailer');
 
 const characters = [
@@ -73,14 +76,14 @@ module.exports = {
         service: 'gmail',
         auth: {
             user: 'yuzzwatch@gmail.com',
-            pass: 'xpup aadb slis sngh'
+            pass: process.env.MAIL_PASS,
         }
         });
 
         let verificationCode = createVerificationCode();
-        while ((verificationCodes.find(code => code["code"] === verificationCode))){
+        while ((verificationCodes.find(code => code["verification code"] === verificationCode))){
 
-            verificationCode = createRoomCode();
+            verificationCode = createVerificationCode();
 
         }
 
@@ -88,17 +91,14 @@ module.exports = {
             from: 'yuzzwatch@gmail.com',
             to: givenEmail,
             subject: 'Verify your yuzzwatch account',
-            text: `Here is your verification code: ${verificationCode}. This code will expire around the next 10 minutes.
-            Please don't share this with anyone else.`,
-            html: `<p>Your verification code: <strong>${verificationCode}</strong>
-            <p>This code will expire around the next 1 hour. <br> <strong>Do not share this code with anyone else.</strong>`
+            html: `<p>Your verification code: <strong>${verificationCode}</strong></p>
+            <p>This code will expire around the next 1 hour. <br> <strong>Do not share this code with anyone else.</strong></p>`
 
         };
 
         try{
 
-            const extractedData = await module.exports.recieveMongoDataBase(clientReference, true);
-            const existingEmail = extractedData.find(user => user.email == givenEmail);
+            const existingEmail = await collection.findOne({email: givenEmail});
 
             if (!existingEmail){
 
@@ -135,9 +135,10 @@ module.exports = {
     comparePasword: async function(clientReference, givenUsername, givenPassword){
 
         //extracts mongo data base, set to true for data to be returned
-        const extractedData = await module.exports.recieveMongoDataBase(clientReference, true);
+        const database = clientReference.db("admin_database");
+        const collection = database.collection("admin_users");
 
-        const existingUser = extractedData.find(user => user.username == givenUsername);
+        const existingUser = await collection.findOne({username: givenUsername});
         
         if (existingUser){
 
@@ -153,13 +154,11 @@ module.exports = {
 
     deleteAccount: async function(clientReference, givenUsername){
 
-        const extractedData = await module.exports.recieveMongoDataBase(clientReference, true);
-        const existingUser = extractedData.find(user => user.username == givenUsername);  
+        const database = clientReference.db("admin_database");
+        const collection = database.collection("admin_users");
+        const existingUser = await collection.findOne({username: givenUsername});  
         
         if (existingUser){
-
-            const database = clientReference.db("admin_database");
-            const collection = database.collection("admin_users");
 
             await collection.deleteOne({username: givenUsername});
 
@@ -168,6 +167,100 @@ module.exports = {
         }
 
         return false;
+
+    },
+
+    findAccountEmail: async function(clientReference, givenEmail){
+
+        const database = clientReference.db("admin_database");
+        const collection = database.collection("admin_users");
+
+        const existingEmail = await collection.findOne({ email: givenEmail });
+        if (existingEmail) return existingEmail;
+        else return false;
+
+    },
+
+    sendRecoveryVerification: async function(clientReference, recoveryCodesReference, existingEmail){
+
+        let recoveryCode = createVerificationCode();
+        while (recoveryCodesReference[recoveryCode]){
+            recoveryCode = createVerificationCode();
+        }
+
+        let newRecoveryCodeObj = {
+
+            "verification code": recoveryCode,
+            "username": existingEmail.username,
+            "time created": Date.now(),
+
+        }
+
+
+        let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'yuzzwatch@gmail.com',
+            pass: process.env.MAIL_PASS,
+        }
+        });
+
+        let mailOptions = {
+            from: 'yuzzwatch@gmail.com',
+            to: existingEmail.email,
+            subject: 'Account recovery',
+            html: `
+            <p>This is the recovery code for the account attatched to this 
+            email with the username of: <strong>${existingEmail.username}</strong></p>
+            <p><strong>Recovery code: ${recoveryCode}</strong></p>
+            <p>This code will expire in about <strong> 1 hour</strong>.</p>
+
+            `
+
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+
+        let dataToReturn = {
+
+            obj: newRecoveryCodeObj,
+            code: recoveryCode,
+
+        }
+
+        return dataToReturn;
+
+    },
+
+    changePassword: async function(clientReference, givenUsername, newPassword){
+
+        const database = clientReference.db("admin_database");
+        const collection = database.collection("admin_users");
+
+        const userReference = await collection.findOne({ username: givenUsername });
+
+        if (userReference){
+            const passwordValidation = await validateUserDataInput(collection, "password", newPassword)
+
+            console.log("LASJDLKASJDLKASJLKASJLKASJFLKASJFLKASJFLKSAJFLKSAJ")
+            console.log(`updated ${givenUsername} account password to ${newPassword}`)
+            console.log(passwordValidation)
+
+            if (!passwordValidation[0]){ return passwordValidation; }
+            
+            const processingRounds = 10;
+            const hashedPassword = await bcrypt.hash(newPassword, processingRounds);
+
+            await collection.updateOne(
+                {username: givenUsername},
+                {$set: {password: hashedPassword}}
+            );
+
+            
+
+            return passwordValidation;
+
+        }
 
     }
 
@@ -212,7 +305,7 @@ async function validateUserDataInput(collectionReference, inputType, input){
         
 
     //returns true if input passes all checks
-    return [true, "Valid"]
+    return [true, "Valid"];
 
 
 }

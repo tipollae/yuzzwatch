@@ -21,9 +21,12 @@
         <center>
             <input class = "input" id = "inputUSERNAME" type = "text" placeholder="Enter username" autocomplete="off"><br>
             <input class = "input" id = "inputPASSWORD" type = "password" placeholder="Enter password">
-            <h2 class = "createAccount" onclick = "window.location = 'createAccount.html'">
+            <h3 class = "createAccount" onclick = "window.location = 'createAccount.html'">
                 Don't have an account? Sign up here through email
-            </h2>
+            </h3>
+            <h3 id = "recoverAccount" onclick = "window.location = 'accountRecovery.html'">
+                Having trouble logging in? Recover your account here.
+            </h3>
             <h3 class = "errorDisplay" id = "error"></h2>
             <div id = "loginButton" onclick = "sendLoginDetails()">Login</div>
 

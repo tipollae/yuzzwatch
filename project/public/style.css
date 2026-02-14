@@ -70,6 +70,19 @@ body{
 
 }
 
+#recoverAccount{
+
+    color: rgb(57, 117, 255);
+    height: max-content;
+
+    font-family: "Open Sans", sans-serif;
+
+    cursor: pointer;
+
+    display: none;
+
+}
+
 .errorDisplay{
 
     color: red;
@@ -210,7 +223,34 @@ body{
 
 }
 
-#accountVerificationContainer h2{
+#form2{
+
+    position: relative;
+    width: max-content;
+    text-align: left;
+
+    display: none;
+
+}
+
+#form2 label{
+
+    font-size: 30px;
+    font-family: "Open Sans", sans-serif;
+    color:white;
+
+}
+
+#recoveryVerificationContainer{
+
+    position: relative;
+    margin-top: 30px;
+    display: none;
+    width: max-content;
+
+}
+
+#recoveryVerificationContainer h2{
 
     font-size: 30px;
     font-family: "Open Sans", sans-serif;
