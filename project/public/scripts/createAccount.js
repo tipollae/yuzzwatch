@@ -9,6 +9,8 @@ const emailError = document.getElementById("emailError");
 const submitButton = document.getElementById("submitButton");
 const verificationCodeError = document.getElementById("verificationCodeError");
 const resendCode = document.getElementById("resendCode");
+const inputCode = document.getElementById("verificationCode");
+const codeButton = document.getElementById("codeButton");
 
 form.addEventListener("submit", function(event) {
     event.preventDefault();
@@ -64,6 +66,9 @@ socket.on("validUserData", ()=>{
     form.style.display = "none";
     document.getElementById("accountVerificationContainer").style.display = "block";
 
+    codeButton.style.filter = "brightness(100%)";
+    codeButton.style.pointerEvents = "auto";
+
     resendCode.style.filter = "brightness(100%)";
     resendCode.style.pointerEvents = "auto";
 
@@ -91,15 +96,18 @@ socket.on("invalidVerificationCode", ()=>{
     codeButton.style.filter = "brightness(100%)";
     codeButton.style.pointerEvents = "auto";
 
+    resendCode.style.filter = "brightness(100%)";
+    resendCode.style.pointerEvents = "auto";
+
 })
 
 function verifyAccount(){
 
-    const inputCode = document.getElementById("verificationCode");
-    const codeButton = document.getElementById("codeButton");
-
     codeButton.style.filter = "brightness(60%)";
     codeButton.style.pointerEvents = "none";
+
+    resendCode.style.filter = "brightness(60%)";
+    resendCode.style.pointerEvents = "none";
 
     socket.emit("verifyAccount", inputCode.value)
 
@@ -119,6 +127,11 @@ function sendFormData(){
         resendCode.style.pointerEvents = "auto";
 
         submitButton.style.pointerEvents = "none";
+
+        codeButton.style.filter = "brightness(60%)";
+        codeButton.style.pointerEvents = "none";
+
+        resendCode.style.filter = "brightness(60%)";
         resendCode.style.pointerEvents = "none";
 
         socket.emit("checkUserData", data.username, data.password2, data.email)

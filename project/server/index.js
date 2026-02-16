@@ -579,13 +579,11 @@ io.on("connection", async (socket)=>{
 
             if (existingEmail){
                 console.log("existing email")
-                socket.emit("notify", true, "Account found")
                 asyncFunctionCallBack(dataHandler.sendRecoveryVerification, client, 
                 recoveryCodes, existingEmail).then((returnedData)=>{
-
-                   recoveryCodes[returnedData.code] = returnedData.obj;
-                   console.log(recoveryCodes)
-                   console.log(recoveryCodes)
+                    recoveryCodes[returnedData.code] = returnedData.obj;
+                    socket.emit("notify", true, "Account found")
+                    console.log(recoveryCodes)
 
                 })
             }

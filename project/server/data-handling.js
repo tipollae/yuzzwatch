@@ -188,14 +188,24 @@ module.exports = {
             recoveryCode = createVerificationCode();
         }
 
+        for (code in recoveryCodesReference){
+
+            if (recoveryCodesReference[code].email == existingEmail.email){
+
+                delete recoveryCodesReference[code];
+
+            }
+
+        }
+
         let newRecoveryCodeObj = {
 
             "verification code": recoveryCode,
+            "email": existingEmail.email,
             "username": existingEmail.username,
             "time created": Date.now(),
 
         }
-
 
         let transporter = nodemailer.createTransport({
         service: 'gmail',

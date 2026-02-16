@@ -196,6 +196,27 @@ body{
 
 }
 
+#messageDisplay{
+
+    position: absolute;
+    left: 50%;
+    margin-top: 20px;
+    transform: translate(-50%, 0%);
+
+    background-color: rgba(22, 9, 9, 0.9);
+    padding-left: 100px;
+    padding-right: 100px;
+
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 5px;
+
+    font-size: 2vh;
+
+    display: none;
+
+}
+
 
 /* create acount styling */
 #form{
@@ -220,6 +241,14 @@ body{
     margin-top: 30px;
     display: none;
     width: max-content;
+
+}
+
+#accountVerificationContainer h2{
+
+    font-size: 30px;
+    font-family: "Open Sans", sans-serif;
+    color:white;
 
 }
 
@@ -446,6 +475,25 @@ body{
 }
 
 @media (max-width: 1200px) {
+
+    #messageDisplay{
+
+    position: absolute;
+    left: 50%;
+    top: 5%;
+    transform: translate(-50%, 0%);
+
+    background-color: rgba(22, 9, 9, 0.9);
+
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 5px;
+
+    font-size: 2vh;
+
+    display: none;
+
+    }
 
     #roomHandlerInputs .input{
 
@@ -892,5 +940,29 @@ body{
         left: 50%;
 
     }
+
+    #messageDisplay{
+
+    position: absolute;
+    left: 50%;
+    top: 38%;
+    transform: translate(-50%, -50%);
+
+    background-color: rgba(22, 9, 9, 0.9);
+    
+
+    font-size: 2vh;
+
+    display: none;
+
+    }
+
+}
+
+h2{
+
+    font-size: 30px;
+    font-family: "Open Sans", sans-serif;
+    color:white;
 
 }

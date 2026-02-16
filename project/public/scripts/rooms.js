@@ -1,63 +1,27 @@
 
-const socket = io();
-
-var localToken = localStorage.getItem("token");
-var localUsername = localStorage.getItem("username");
-var localRooms = localStorage.getItem("active-rooms")
-
-socket.on('disconnect', function() {
-    window.location = "index.html"
-});
-
-
-socket.on("established-connection", ()=>{
-
-    socket.emit("connection-protocal", localToken)
-
-})
-
-socket.on("log-user-in", (givenToken, givenUsername)=>{
-
-    localStorage.setItem("username", givenUsername)
-    localStorage.setItem("token", givenToken)
-
-    console.log(`You have logged in. Username ${givenUsername}, token: ${givenToken}`)
-
-    socket.emit("request-active-rooms")
-
-})
-
-socket.on("expired-token-protocal", ()=>{
-
-    alert("Invalid token");
-    localStorage.clear();
-    window.location = "index.html";
-
-})
-
 socket.on("valid-room", (serverRoomCode, joinedRoom)=>{
 
     localStorage.setItem("active-rooms", serverRoomCode);
-    alert(`Joining room...`);
+    displayMessage("Room found!", "#20bf55")
     window.location = `watch.html#${joinedRoom}`;
 
 })
 
 socket.on("invalid-room", ()=>{
 
-    alert("Invalid room code.")
+    displayMessage("Invalid room code", "red")
 
 })
 
 socket.on("failed-to-create-room", ()=>{
 
-    alert("Failed to create room. Please try again.")
+    displayMessage("Failed to create room.<br>Please try again", "red")
 
 })
 
 socket.on("already-in-room", ()=>{
 
-    alert("You are already in that room.")
+    displayMessage("You are already in that room", "red")
 
 })
 
@@ -77,24 +41,10 @@ socket.on("server-active-rooms", (roomsData)=>{
 
 })
 
-socket.on("account-deletion-success", function(){
-
-    alert("Your account was successfully deleted");
-    window.location = "index.html";
-
-})
-
-socket.on("failed-to-delete-account", function(){
-
-    alert("Something went wrong. Failed to delete account.")
-
-})
-
 function searchRoom(){
 
     var roomCode = document.getElementById("inputROOMCODE").value;
-
-    socket.emit("search-room", roomCode)
+    socket.emit("search-room", roomCode);
 
 }
 
@@ -104,22 +54,39 @@ function createRoom(){
 
 }
 
-function openDeletePrompt(){
+var messageTimeout = null;
 
-    document.getElementById("confirmDeleteWrapper").style.display = "block";
-    document.getElementById("maskWholeScreen").style.display = "block";
+function displayMessage(message, color){
 
-}
+    const msgDisplay = document.getElementById("messageDisplay");
 
-function closeDeletePrompt(){
+    msgDisplay.innerHTML = `<center>${message}</center>`;
+    msgDisplay.style.color = color;
+    msgDisplay.style.display = "block";
+    const TIME = 2500;
 
-    document.getElementById("confirmDeleteWrapper").style.display = "none";
-    document.getElementById("maskWholeScreen").style.display = "none";
+    if (messageTimeout === null){
 
-}
+        messageTimeout = setTimeout(function(){
 
-function deleteAccount(){
+            msgDisplay.innerHTML = "";
+            msgDisplay.style.display = "none";
 
-    socket.emit("deleteAccount", localUsername, localToken)
+        }, TIME)
+
+    }
+
+    else{
+
+        clearInterval(messageTimeout);
+        messageTimeout = null;
+        messageTimeout = setTimeout(function(){
+
+            msgDisplay.innerHTML = "";
+            msgDisplay.style.display = "none";
+
+        }, TIME);
+
+    }
 
 }
