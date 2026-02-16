@@ -474,6 +474,43 @@ body{
 
 }
 
+
+/*----- about me -----*/
+
+#aboutMeText{
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    animation: spinny 0.8s ease-out;
+
+}
+
+#aboutMeText h3{
+
+    color: white;
+    font-family: "Open Sans", sans-serif;
+
+}
+
+#me{
+
+    width: 400px;
+
+}
+
+@keyframes spinny {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
 @media (max-width: 1200px) {
 
     #messageDisplay{
@@ -957,12 +994,26 @@ body{
 
     }
 
-}
+    #aboutMeText{
+        margin-top: 50px;
+        width: 80%;
+    }
 
-h2{
+    #me{
 
-    font-size: 30px;
-    font-family: "Open Sans", sans-serif;
-    color:white;
+        width: 300px;
+
+    }
+
+    @keyframes spinny {
+    0% {
+        margin-top: 50px;
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+        margin-top: 50px;
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+    }
 
 }

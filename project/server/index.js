@@ -768,15 +768,15 @@ function helpCommand(givenData){
 
     let html = `
     <h1 class = "serverNote">
-    <p class = "message" style = "color: white">Host commands:</p>
-    <p class = "message" style = "color: white">• /add link1 link2 link3...</p>
-    <p class = "message" style = "color: white">• /next</p>
-    <p class = "message" style = "color: white">• /clear</p>
-    <p class = "message" style = "color: white">• /kick username</p>
+    <p class = "message" style = "color: #FCA311">Host commands:</p>
+    <p class = "message" style = "color: #FCA311">• /add link1 link2 link3...</p>
+    <p class = "message" style = "color: #FCA311">• /next</p>
+    <p class = "message" style = "color: #FCA311">• /clear</p>
+    <p class = "message" style = "color: #FCA311">• /kick username</p>
     <br>
-    <p class = "message" style = "color: white">General commands:</p>
-    <p class = "message" style = "color: white">• /getPlaylistLength</p>
-    <p class = "message" style = "color: white">• /help</p>
+    <p class = "message" style = "color: #FCA311">General commands:</p>
+    <p class = "message" style = "color: #FCA311">• /getPlaylistLength</p>
+    <p class = "message" style = "color: #FCA311">• /help</p>
     </h1>
     `;
     io.to(givenData.socketID).emit("server-message", html)
@@ -806,7 +806,7 @@ function addVideo(givenData){
 
     let html = `
     <h1 class = "serverNote">
-    <p class = "message" style = "color: white">Added ${amountAdded} videos to playlist</p>
+    <p class = "message" style = "color: #FCA311">Added ${amountAdded} videos to playlist</p>
     </h1>
     `;
     io.to(givenData.givenRoomCode).emit("server-message", html)
@@ -857,7 +857,7 @@ function nextVideo(givenData){
 
         let html = `
         <h1 class = "serverNote">
-        <p class = "message" style = "color: white">Playlist is empty</p>
+        <p class = "message" style = "color: #FCA311">Playlist is empty</p>
         </h1>
         `;
         io.to(givenData.socketID).emit("server-message", html);
@@ -870,7 +870,7 @@ function nextVideo(givenData){
     io.to(givenData.socketID).emit("next-in-playlist", foundRoom.playlist[0])
     let html = `
     <h1 class = "serverNote">
-    <p class = "message" style = "color: white">Moved to next video in playlist</p>
+    <p class = "message" style = "color: #FCA311">Moved to next video in playlist</p>
     </h1>
     `;
     io.to(givenData.givenRoomCode).emit("server-message", html)
@@ -890,7 +890,7 @@ function clearPlaylist(givenData){
 
     let html = `
     <h1 class = "serverNote">
-    <p class = "message" style = "color: white">Cleared playlist</p>
+    <p class = "message" style = "color: #FCA311">Cleared playlist</p>
     </h1>
     `;
     io.to(givenData.givenRoomCode).emit("server-message", html)
@@ -904,7 +904,7 @@ function getPlaylistLength(givenData){
 
     let html = `
     <h1 class = "serverNote">
-    <p class = "message" style = "color: white">There are currently ${foundRoom.playlist.length} videos in the playlist</p>
+    <p class = "message" style = "color: #FCA311">There are currently ${foundRoom.playlist.length} videos in the playlist</p>
     </h1>
     `;
     io.to(givenData.socketID).emit("server-message", html)
@@ -928,7 +928,7 @@ function kickCommand(givenData){
 
         html = `
         <h1 class = "serverNote">
-        <p class = "message" style = "color: white">Kicked ${foundUser.username} from room :o</p>
+        <p class = "message" style = "color: #FCA311">Kicked <p>${foundUser.username} from room :o</p>
         </h1>
         `;
 
@@ -940,7 +940,7 @@ function kickCommand(givenData){
 
         html = `
         <h1 class = "serverNote">
-        <p class = "message" style = "color: white">Couldn't find user in room.</p>
+        <p class = "message" style = "color: #FCA311">Couldn't find user in room.</p>
         </h1>
         `;
 
