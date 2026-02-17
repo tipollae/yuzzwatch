@@ -928,7 +928,7 @@ function kickCommand(givenData){
 
         html = `
         <h1 class = "serverNote">
-        <p class = "message" style = "color: #FCA311">Kicked <p>${foundUser.username} from room :o</p>
+        <p class = "message" style = "color: #FCA311">Kicked ${foundUser.username} from room :o</p>
         </h1>
         `;
 
